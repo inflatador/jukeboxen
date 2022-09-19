@@ -5,6 +5,13 @@ outputs a list of their songs in DNS hostname (RFC ???) format.
 Now you can name your servers/containers/whatever after your favorite band's
 songs!
 
+## Using the Discogs API
+
+The script requires a Discogs API user token as described [here](https://www.discogs.com/developers/#page:authentication).
+
+You should set the token as an environment variable "JB_TOKEN" before running the script:
+`export JB_TOKEN=blahblahyourtokenhere`
+
 ## Invoking
 
 `./jukeboxen.py "Band Name"`
@@ -17,9 +24,6 @@ songs!
 
 - [validators](https://github.com/python-validators/validators)
 
-## Using the Discogs API
+## Limitations
 
-The script requires a Discogs API user token as described [here](https://www.discogs.com/developers/#page:authentication).
-
-You should set the token as an environment variable "JB_TOKEN" before running the script:
-`export JB_TOKEN=blahblahyourtokenhere`
+The script is pretty naive 

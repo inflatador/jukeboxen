@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 
 # jukeboxen.py: given a band name, downloads song data from discogs and
 # outputs a list of their songs in DNS hostname (RFC ???) format.
 # Now you can name servers/containers/whatever after your favorite band's
 # songs!
 
-# Version: 0.0.2a
+# Version: 0.0.3a
 # Author: Brian King
-# License: Apache 2.0
 
 import discogs_client
 import logging
@@ -18,42 +18,27 @@ import validators
 jb_logger = logging.getLogger("jukeboxen")
 logging.basicConfig(level=logging.DEBUG)
 
-def get_artist_id(artist_name, jb_client):
-    artist_results = jb_client.search(artist_name, type='artist')
-    jb_artist_name = artist_results.page(index=0)[0].name
-    jb_artist_id = artist_results.page(index=0)[0].id
-    jb_logger.debug("Naively matching on first result: \
-Name: {} , ID: {}".format(jb_artist_name, jb_artist_id))
-    return jb_artist_id
-
-def get_artist_releases(jb_artist_id, jb_client):
-    jb_artist = jb_client.artist(jb_artist_id)
-    print ("{} released {}".format(jb_artist.name, jb_artist.releases.page(1)))
-    jb_logger.debug("Found {} albums by {}...".format(len(jb_artist.releases), jb_artist.name))
-    jb_releases = []
-    for release in jb_artist.releases:
-        jb_releases.append(release.id)
-    jb_logger.debug("Found the following release IDs: {}".format(jb_releases))
-    return jb_releases
-
-def get_song_names(jb_releases, jb_client):
-# using "MasterRelease" instead of "Release" as it seems to have the correct
-# data, ref
-# https://python3-discogs-client.readthedocs.io/en/latest/fetching_data_repl.html#masterrelease
+def get_releases(artist_name, jb_client):
+    artist_results = jb_client.search(artist_name, artist=artist_name, type='master')
+    # print (dir(artist_results))
+    # 'client', 'count', 'filter', 'page', 'pages', 'per_page', 'sort', 'url'
+    # FIXME: Only using the first page of search results to avoid rate-limiting.
+    # We'll handle more results eventually.
+    first_page_of_releases = artist_results.page(1)
     song_names = []
-    for release in jb_releases:
-        this_release = jb_client.master(release)
-        for track in this_release.tracklist:
+    for release in first_page_of_releases:
+        # print ("Tracklist: {}".format(release.tracklist))
+        for track in release.tracklist:
             song_names.append(track.title)
-
-    jb_logger.debug("I got the tracks as {}".format(song_names))
+            jb_logger.debug("Appending track titled '{}' to song names...".format(track.title))
+    jb_logger.debug("Found {} song names...".format(len(song_names)))
     return song_names
 
 # FIXME: Better transformation
 def convert_to_hostnames(song_names):
     converted_hostnames = []
     for song_name in song_names:
-        # song_name = song_name.replace(".", "")
+        song_name = song_name.replace(".", "")
         song_name = song_name.replace(" ", "-")
         song_name = song_name.replace("--", "-")
         song_name = song_name.replace("'", "")
@@ -85,16 +70,16 @@ def main(artist_name):
     jb_logger.debug("Artist name received: {}".format(artist_name))
     # discogs requires a unique user-agent per application
     jb_id = "Jukeboxen"
-    jb_vers = "0.0.2a"
+    jb_vers = "0.0.3a"
     jb_user_agent = "{}/{}".format(jb_id, jb_vers)
     jb_token = os.environ["JB_TOKEN"]
     jb_client = discogs_client.Client(jb_user_agent, user_token=jb_token)
-    jb_artist_id = get_artist_id(artist_name, jb_client)
-    jb_releases = get_artist_releases(jb_artist_id, jb_client)
-    song_names = get_song_names(jb_releases, jb_client)
+    song_names = get_releases(artist_name, jb_client)
     converted_hostnames = convert_to_hostnames(song_names)
     validated_hostnames = validate_hostnames(converted_hostnames)
-    print ("Validated hostnames: {}".format(validated_hostnames))
+    validated_hostnames = sorted(set(validated_hostnames))
+    for vh in validated_hostnames:
+        print (vh)
 if __name__ == '__main__':
     import plac
     plac.call(main)
