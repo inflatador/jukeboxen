@@ -12,9 +12,27 @@ The script requires a Discogs API user token as described [here](https://www.dis
 You should set the token as an environment variable "JB_TOKEN" before running the script:
 `export JB_TOKEN=blahblahyourtokenhere`
 
-## Invoking
+## Usage
 
-`./jukeboxen.py "Band Name"`
+### Invoke
+
+`./jukeboxen.py "Sir-Mix-a-Lot"`
+
+### Example Output
+```./jukeboxen.py "Sir Mix-a-Lot"
+INFO:jukeboxen:Artist name received: Sir Mix-a-Lot
+INFO:jukeboxen:Found 180 song names...
+INFO:jukeboxen:Found 106 potential hostnames...
+Suggested hostnames from the catalog of Sir Mix-a-Lot:
+2-horse
+a-rappers-reputation
+aintsta
+at-the-next-show
+attack-on-the-stars
+aunt-thomasina
+baby-got-back
+[...]
+```
 
 ## Required Libraries
 
