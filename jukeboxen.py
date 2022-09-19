@@ -13,6 +13,7 @@ import discogs_client
 import logging
 import os
 import plac
+import sys
 import validators
 
 jb_logger = logging.getLogger("jukeboxen")
@@ -37,8 +38,11 @@ def get_releases(artist_name, jb_client):
 # FIXME: Better transformation
 def convert_to_hostnames(song_names):
     converted_hostnames = []
+    # by no means an exh
+    badchars = ['.', '~', '?', '!', '`']
     for song_name in song_names:
-        song_name = song_name.replace(".", "")
+        for badchar in badchars:
+            song_name = song_name.replace(badchar,"")
         song_name = song_name.replace(" ", "-")
         song_name = song_name.replace("--", "-")
         song_name = song_name.replace("'", "")
@@ -54,7 +58,6 @@ def validate_hostnames(converted_hostnames):
         if validators.domain("{}.example.com".format(hostname)):
             validated_hostnames.append(hostname)
     return validated_hostnames
-
 
 @plac.annotations(
     # operation = plac.Annotation("operation to perform: bulk, create, delete, search, stats, update",
@@ -72,12 +75,18 @@ def main(artist_name):
     jb_id = "Jukeboxen"
     jb_vers = "0.0.3a"
     jb_user_agent = "{}/{}".format(jb_id, jb_vers)
-    jb_token = os.environ["JB_TOKEN"]
+    try:
+        jb_token = os.environ["JB_TOKEN"]
+    except:
+        print ("Error, environment variable 'JB_TOKEN' is unset. Please set \
+to your discogs user token and try again.")
+        sys.exit(1)
     jb_client = discogs_client.Client(jb_user_agent, user_token=jb_token)
     song_names = get_releases(artist_name, jb_client)
     converted_hostnames = convert_to_hostnames(song_names)
     validated_hostnames = validate_hostnames(converted_hostnames)
     validated_hostnames = sorted(set(validated_hostnames))
+    print ("Some ")
     for vh in validated_hostnames:
         print (vh)
 if __name__ == '__main__':
