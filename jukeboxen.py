@@ -16,8 +16,8 @@ import plac
 import sys
 import validators
 
+
 jb_logger = logging.getLogger("jukeboxen")
-logging.basicConfig(level=logging.DEBUG)
 
 def get_releases(artist_name, jb_client):
     artist_results = jb_client.search(artist_name, artist=artist_name, type='master')
@@ -32,13 +32,12 @@ def get_releases(artist_name, jb_client):
         for track in release.tracklist:
             song_names.append(track.title)
             jb_logger.debug("Appending track titled '{}' to song names...".format(track.title))
-    jb_logger.debug("Found {} song names...".format(len(song_names)))
+    jb_logger.info("Found {} song names...".format(len(song_names)))
     return song_names
 
-# FIXME: Better transformation
+# FIXME: Better transformation (existing library/regex?)
 def convert_to_hostnames(song_names):
     converted_hostnames = []
-    # by no means an exh
     badchars = ['.', '~', '?', '!', '`']
     for song_name in song_names:
         for badchar in badchars:
@@ -57,20 +56,19 @@ def validate_hostnames(converted_hostnames):
         jb_logger.debug("Validating hostname {}...".format(hostname))
         if validators.domain("{}.example.com".format(hostname)):
             validated_hostnames.append(hostname)
+    jb_logger.info("Found {} potential hostnames...".format(len(validated_hostnames)))
     return validated_hostnames
 
 @plac.annotations(
-    # operation = plac.Annotation("operation to perform: bulk, create, delete, search, stats, update",
-    #                             choices=["bulk", "create", "delete", "search", "stats", "update"]),
-    # json_file = plac.Annotation("local json file to upload to ES", "option", "f"),
-    # index_name = plac.Annotation("index to create, update, or delete", "option", "i"),
-    # movie_id = plac.Annotation("ID of movie to update, delete, or create", "option", "m"),
-    # primary_term = plac.Annotation("primary term number for targeted updates", "option", "p"),
-    # seq_no = plac.Annotation("sequence number for targeted updates", "option", "q"),
-    artist_name = plac.Annotation("artist name")
+    artist_name = plac.Annotation("artist name"),
+    verbose = plac.Annotation("verbose output", "flag", "v")
                 )
-def main(artist_name):
-    jb_logger.debug("Artist name received: {}".format(artist_name))
+def main(artist_name, verbose):
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    jb_logger.info("Artist name received: {}".format(artist_name))
     # discogs requires a unique user-agent per application
     jb_id = "Jukeboxen"
     jb_vers = "0.0.3a"
