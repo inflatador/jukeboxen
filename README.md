@@ -7,9 +7,9 @@ songs!
 
 ## Invoking
 
-./jukeboxen.py "Band Name"
+`./jukeboxen.py "Band Name"`
 
-# Required Libraries
+## Required Libraries
 
 - [discogs_client](https://github.com/joalla/discogs_client)
 
@@ -17,7 +17,7 @@ songs!
 
 - [validators](https://github.com/python-validators/validators)
 
-# Using the Discogs API
+## Using the Discogs API
 
 The script requires a Discogs API user token as described [here](https://www.discogs.com/developers/#page:authentication).
 
