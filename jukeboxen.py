@@ -86,7 +86,7 @@ to your discogs user token and try again.")
     converted_hostnames = convert_to_hostnames(song_names)
     validated_hostnames = validate_hostnames(converted_hostnames)
     validated_hostnames = sorted(set(validated_hostnames))
-    print ("Some ")
+    print ("Suggested hostnames from the catalog of {}: ".format(artist_name))
     for vh in validated_hostnames:
         print (vh)
 if __name__ == '__main__':

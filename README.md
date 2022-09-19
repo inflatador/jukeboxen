@@ -24,6 +24,11 @@ You should set the token as an environment variable "JB_TOKEN" before running th
 
 - [validators](https://github.com/python-validators/validators)
 
-## Limitations
+## Known Issues
 
-The script is pretty naive 
+The following features could use some work. Feel free to file Github issues
+and/or submit pull requests if interested.
+
+- Transformation
+- Validation
+- Rate-limit avoidance
